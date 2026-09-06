@@ -1,0 +1,9 @@
+{
+  "name": "order-email-web",
+  "version": "1.0.0",
+  "description": "Website sederhana untuk order email via REST API (api.mtc.biz.id) - tanpa dependensi",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

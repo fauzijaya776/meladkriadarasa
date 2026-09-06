@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: order-email-web
+    runtime: node
+    plan: free
+    buildCommand: ""
+    startCommand: node server.js
+    envVars:
+      - key: API_BASE
+        value: https://api.mtc.biz.id
+      # API Key TIDAK di-set di server — tiap user memasukkan key-nya sendiri di web.

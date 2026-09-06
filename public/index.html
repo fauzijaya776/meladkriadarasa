@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order Email</title>
+<style>
+  :root{
+    --bg:#0f1220; --card:#171b2e; --line:#272c44; --ink:#eef1f8; --muted:#9aa3bd;
+    --accent:#4f46e5; --accent-2:#6366f1; --ok:#10b981; --err:#f43f5e; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; background:
+      radial-gradient(900px 500px at 80% -10%, #1d2340 0, transparent 60%),
+      radial-gradient(700px 400px at -10% 10%, #1a1f3a 0, transparent 55%), var(--bg);
+    color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex; align-items:flex-start; justify-content:center; padding:40px 16px;
+  }
+  .wrap{width:100%; max-width:460px}
+  .head{display:flex; align-items:center; gap:12px; margin-bottom:22px}
+  .logo{width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:22px;
+    background:linear-gradient(135deg,var(--accent),#8b5cf6); box-shadow:0 8px 20px rgba(79,70,229,.4)}
+  .head h1{font-size:20px; margin:0} .head p{margin:2px 0 0; font-size:13px; color:var(--muted)}
+  .balance{margin-left:auto; text-align:right; font-size:12px; color:var(--muted)}
+  .balance b{display:block; font-size:15px; color:var(--ink)}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px; box-shadow:0 20px 40px rgba(0,0,0,.35)}
+  label{display:block; font-size:12px; color:var(--muted); margin:0 0 7px; font-weight:600; letter-spacing:.3px}
+  .field{margin-bottom:18px}
+  select,input{width:100%; padding:12px 14px; border-radius:11px; border:1px solid var(--line);
+    background:#10142a; color:var(--ink); font-size:14px; outline:none; transition:.15s}
+  select:focus,input:focus{border-color:var(--accent-2); box-shadow:0 0 0 3px rgba(99,102,241,.25)}
+
+  /* API key field */
+  .keyrow{display:flex; gap:8px}
+  .keyrow input{flex:1; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px}
+  .keyrow button{flex:0 0 auto; width:48px; border:1px solid var(--line); background:#10142a;
+    color:var(--muted); border-radius:11px; cursor:pointer; font-size:16px; transition:.15s}
+  .keyrow button:hover{background:#1a2140; color:#fff}
+  .divider{height:1px; background:var(--line); margin:4px 0 18px}
+
+  /* quantity stepper */
+  .qty{display:flex; align-items:center; gap:0; width:150px}
+  .qty button{width:44px; height:46px; border:1px solid var(--line); background:#10142a; color:var(--ink);
+    font-size:20px; cursor:pointer; transition:.15s; user-select:none}
+  .qty button:hover{background:#1a2140; color:#fff}
+  .qty button:first-child{border-radius:11px 0 0 11px}
+  .qty button:last-child{border-radius:0 11px 11px 0}
+  .qty input{width:62px; text-align:center; border-radius:0; border-left:0; border-right:0; -moz-appearance:textfield}
+  .qty input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+
+  .btn{width:100%; padding:14px; border:0; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer;
+    color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent-2)); transition:.15s; margin-top:4px}
+  .btn:hover{filter:brightness(1.08)} .btn:disabled{opacity:.6; cursor:not-allowed}
+
+  .result{margin-top:18px; border-radius:12px; border:1px solid var(--line); background:#0e1226;
+    padding:14px 16px; font-size:13px; display:none}
+  .result.show{display:block}
+  .result.ok{border-color:rgba(16,185,129,.5)} .result.err{border-color:rgba(244,63,94,.5)}
+  .result .status{font-weight:700; margin-bottom:8px}
+  .result.ok .status{color:var(--ok)} .result.err .status{color:var(--err)}
+  pre{margin:0; white-space:pre-wrap; word-break:break-word; color:#c7cee6; font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; max-height:280px; overflow:auto}
+  .foot{text-align:center; margin-top:16px; font-size:11.5px; color:var(--muted); line-height:1.6}
+  .spinner{display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.4);
+    border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:7px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div class="logo">📧</div>
+      <div>
+        <h1>Order Email</h1>
+        <p>Sewa email untuk aktivasi akun</p>
+      </div>
+      <div class="balance" id="balance">Saldo<b>—</b></div>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label for="apiKey">🔐 API Key</label>
+        <div class="keyrow">
+          <input id="apiKey" type="password" placeholder="erb_..." autocomplete="off" spellcheck="false">
+          <button type="button" id="toggleKey" title="Lihat/sembunyikan">👁</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="field">
+        <label for="website">Website</label>
+        <select id="website">
+          <option value="digitalocean.com" selected>digitalocean.com</option>
+          <option value="instagram.com">instagram.com</option>
+          <option value="facebook.com">facebook.com</option>
+          <option value="twitter.com">twitter.com</option>
+          <option value="tiktok.com">tiktok.com</option>
+          <option value="__custom">Lainnya…</option>
+        </select>
+      </div>
+
+      <div class="field" id="customWrap" style="display:none">
+        <label for="customWebsite">Website lain</label>
+        <input id="customWebsite" placeholder="contoh.com" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label for="domain">Domain</label>
+        <select id="domain">
+          <option value="gmail.com" selected>gmail.com</option>
+          <option value="outlook.com">outlook.com</option>
+          <option value="hotmail.com">hotmail.com</option>
+          <option value="yahoo.com">yahoo.com</option>
+          <option value="icloud.com">icloud.com</option>
+          <option value="__custom">Lainnya…</option>
+        </select>
+      </div>
+
+      <div class="field" id="customDomainWrap" style="display:none">
+        <label for="customDomain">Domain lain</label>
+        <input id="customDomain" placeholder="contoh.com" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label>Quantity</label>
+        <div class="qty">
+          <button type="button" id="minus">−</button>
+          <input id="qty" type="number" min="1" value="1">
+          <button type="button" id="plus">+</button>
+        </div>
+      </div>
+
+      <button class="btn" id="orderBtn">Order Sekarang</button>
+
+      <div class="result" id="result">
+        <div class="status" id="resultStatus"></div>
+        <pre id="resultBody"></pre>
+      </div>
+    </div>
+
+    <div class="foot">API Key milik Anda sendiri &amp; tersimpan di browser ini saja.<br>API: api.mtc.biz.id</div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const keyInput = $('apiKey'), toggleKey = $('toggleKey');
+  const websiteSel = $('website'), customWrap = $('customWrap'), customInput = $('customWebsite');
+  const domainSel = $('domain'), customDomainWrap = $('customDomainWrap'), customDomainInput = $('customDomain');
+  const qtyInput = $('qty'), orderBtn = $('orderBtn');
+  const resultBox = $('result'), resultStatus = $('resultStatus'), resultBody = $('resultBody');
+  const LS = 'ers_api_key';
+
+  // ---- API Key: load dari browser, simpan otomatis, tombol lihat/sembunyi
+  try { keyInput.value = localStorage.getItem(LS) || ''; } catch {}
+  keyInput.addEventListener('input', () => {
+    try { localStorage.setItem(LS, keyInput.value.trim()); } catch {}
+  });
+  keyInput.addEventListener('change', loadBalance);
+  toggleKey.addEventListener('click', () => {
+    keyInput.type = keyInput.type === 'password' ? 'text' : 'password';
+  });
+  function apiKey(){ return keyInput.value.trim(); }
+  function headers(){ const h = {'Content-Type':'application/json'}; const k = apiKey(); if (k) h['X-Api-Key'] = k; return h; }
+
+  // ---- website / domain toggle "Lainnya"
+  websiteSel.addEventListener('change', () => {
+    const c = websiteSel.value === '__custom';
+    customWrap.style.display = c ? 'block' : 'none'; if (c) customInput.focus();
+  });
+  domainSel.addEventListener('change', () => {
+    const c = domainSel.value === '__custom';
+    customDomainWrap.style.display = c ? 'block' : 'none'; if (c) customDomainInput.focus();
+  });
+
+  // ---- quantity stepper
+  function clampQty(){ let v = parseInt(qtyInput.value,10); if(isNaN(v)||v<1) v=1; qtyInput.value=v; return v; }
+  $('minus').addEventListener('click', () => { qtyInput.value = Math.max(1, clampQty()-1); });
+  $('plus').addEventListener('click',  () => { qtyInput.value = clampQty()+1; });
+  qtyInput.addEventListener('change', clampQty);
+
+  // ---- ambil saldo (pakai key user)
+  async function loadBalance(){
+    if (!apiKey()){ $('balance').innerHTML = 'Saldo<b>—</b>'; return; }
+    try{
+      const r = await fetch('/api/profile', { headers: headers() });
+      const d = await r.json();
+      const bal = d.balance ?? d.saldo ?? d.data?.balance;
+      if (bal != null){
+        const n = Number(bal);
+        $('balance').innerHTML = 'Saldo<b>' + (isNaN(n) ? String(bal) : n.toLocaleString('id-ID')) + '</b>';
+      } else { $('balance').innerHTML = 'Saldo<b>—</b>'; }
+    }catch{ $('balance').innerHTML = 'Saldo<b>—</b>'; }
+  }
+  loadBalance();
+
+  // ---- order
+  orderBtn.addEventListener('click', async () => {
+    if (!apiKey()){ show('err','API Key belum diisi','Masukkan API Key Anda dulu di atas.'); keyInput.focus(); return; }
+    const website = websiteSel.value === '__custom' ? customInput.value.trim() : websiteSel.value;
+    if (!website){ show('err','Website belum diisi',''); return; }
+    const domain = domainSel.value === '__custom' ? customDomainInput.value.trim() : domainSel.value;
+    if (!domain){ show('err','Domain belum diisi',''); return; }
+    const qty = clampQty();
+
+    orderBtn.disabled = true;
+    orderBtn.innerHTML = '<span class="spinner"></span>Memproses…';
+    resultBox.className = 'result';
+
+    try{
+      const r = await fetch('/api/order', { method:'POST', headers: headers(),
+        body: JSON.stringify({ website, domain, qty }) });
+      const data = await r.json();
+      if (r.ok) show('ok', '✔ Order berhasil (HTTP '+r.status+')', pretty(data));
+      else      show('err','✘ Gagal (HTTP '+r.status+')', pretty(data));
+      loadBalance();
+    }catch(e){
+      show('err','✘ Error koneksi', e.message);
+    }finally{
+      orderBtn.disabled = false;
+      orderBtn.textContent = 'Order Sekarang';
+    }
+  });
+
+  function show(kind, status, body){
+    resultBox.className = 'result show ' + kind;
+    resultStatus.textContent = status;
+    resultBody.textContent = body;
+  }
+  function pretty(o){ try{ return JSON.stringify(o, null, 2); }catch{ return String(o); } }
+</script>
+</body>
+</html>
