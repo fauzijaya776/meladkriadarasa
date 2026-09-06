@@ -29,8 +29,8 @@
     padding:22px; box-shadow:0 20px 40px rgba(0,0,0,.35); margin-bottom:18px}
   label{display:block; font-size:12px; color:var(--muted); margin:0 0 7px; font-weight:600; letter-spacing:.3px}
   .field{margin-bottom:18px}
-  select,input{width:100%; padding:12px 14px; border-radius:11px; border:1px solid var(--line);
-    background:#10142a; color:var(--ink); font-size:14px; outline:none; transition:.15s}
+  select,input[type=text],input[type=password],input[type=number]{width:100%; padding:12px 14px; border-radius:11px;
+    border:1px solid var(--line); background:#10142a; color:var(--ink); font-size:14px; outline:none; transition:.15s}
   select:focus,input:focus{border-color:var(--accent-2); box-shadow:0 0 0 3px rgba(99,102,241,.25)}
 
   .keyrow{display:flex; gap:8px}
@@ -53,11 +53,9 @@
     color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent-2)); transition:.15s; margin-top:4px}
   .btn:hover{filter:brightness(1.08)} .btn:disabled{opacity:.6; cursor:not-allowed}
 
-  /* status + hasil order */
   .status{font-weight:700; font-size:13px; margin:2px 0 12px}
   .status.ok{color:var(--ok)} .status.err{color:var(--err)}
 
-  /* baris email gmail hasil order */
   .mailrow{display:flex; align-items:center; gap:8px; background:#0e1226; border:1px solid var(--line);
     border-radius:11px; padding:9px 10px 9px 13px; margin-bottom:9px}
   .mailrow .mail{flex:1; min-width:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px;
@@ -74,23 +72,28 @@
   pre{margin:8px 0 0; white-space:pre-wrap; word-break:break-word; color:#c7cee6; font-size:12px;
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; max-height:240px; overflow:auto}
 
-  /* inbox */
-  .inbox-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}
+  .inbox-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px}
   .inbox-head label{margin:0}
+  .inbox-actions{display:flex; align-items:center; gap:10px}
+  .chk{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); font-weight:600; cursor:pointer; user-select:none}
+  .chk input{width:15px; height:15px; accent-color:var(--accent-2); cursor:pointer}
   .btn-sm{border:1px solid var(--line); background:#10142a; color:#cdd5e6; cursor:pointer; font-size:12.5px;
-    font-weight:600; padding:8px 14px; border-radius:10px; transition:.15s}
+    font-weight:600; padding:8px 14px; border-radius:10px; transition:.15s; min-width:96px}
   .btn-sm:hover{background:#1a2140; color:#fff}
   .btn-sm:disabled{opacity:.6; cursor:not-allowed}
+  .autoNote{font-size:11.5px; color:#7aa2ff; margin:2px 0 8px}
   .msg{background:#0e1226; border:1px solid var(--line); border-radius:11px; padding:11px 13px; margin-top:10px}
-  .msg-top{display:flex; gap:8px; align-items:baseline; font-size:12px; color:var(--muted); margin-bottom:6px}
+  .msg-top{display:flex; flex-wrap:wrap; gap:8px; align-items:baseline; font-size:12px; color:var(--muted); margin-bottom:4px}
   .msg-top b{color:var(--ink); font-size:13px}
+  .msg-to{font-size:11.5px; color:var(--muted); margin-bottom:6px; font-family:ui-monospace,Menlo,monospace}
   .msg-body{font-size:13px; color:#dfe6f5; white-space:pre-wrap; word-break:break-word; line-height:1.55}
-  .msg .mini{margin-top:8px}
-  .empty{font-size:12.5px; color:var(--muted); text-align:center; padding:8px 0}
+  .msg-actions{display:flex; gap:8px; margin-top:9px; flex-wrap:wrap}
+  .code-badge{font-family:ui-monospace,Menlo,monospace; color:#7ee0b8}
+  .empty{font-size:12.5px; color:var(--muted); text-align:center; padding:10px 0}
 
   .foot{text-align:center; margin-top:2px; font-size:11.5px; color:var(--muted); line-height:1.6}
   .spinner{display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.4);
-    border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:7px}
+    border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
@@ -98,10 +101,7 @@
   <div class="wrap">
     <div class="head">
       <div class="logo">📧</div>
-      <div>
-        <h1>Order Email</h1>
-        <p>Sewa email untuk aktivasi akun</p>
-      </div>
+      <div><h1>Order Email</h1><p>Sewa email untuk aktivasi akun</p></div>
       <div class="balance" id="balance">Saldo<b>—</b></div>
     </div>
 
@@ -129,7 +129,7 @@
       </div>
       <div class="field" id="customWrap" style="display:none">
         <label for="customWebsite">Website lain</label>
-        <input id="customWebsite" placeholder="contoh.com" spellcheck="false">
+        <input id="customWebsite" type="text" placeholder="contoh.com" spellcheck="false">
       </div>
 
       <div class="field">
@@ -145,7 +145,7 @@
       </div>
       <div class="field" id="customDomainWrap" style="display:none">
         <label for="customDomain">Domain lain</label>
-        <input id="customDomain" placeholder="contoh.com" spellcheck="false">
+        <input id="customDomain" type="text" placeholder="contoh.com" spellcheck="false">
       </div>
 
       <div class="field">
@@ -170,9 +170,14 @@
     <div class="card">
       <div class="inbox-head">
         <label>📥 Inbox Pesan</label>
-        <button class="btn-sm" id="checkInbox">Cek Pesan</button>
+        <div class="inbox-actions">
+          <label class="chk"><input type="checkbox" id="autoRefresh"> Auto</label>
+          <button class="btn-sm" id="checkInbox">Cek Pesan</button>
+        </div>
       </div>
+      <div class="autoNote" id="autoNote" hidden>⟳ Auto-refresh aktif — mengecek tiap 5 detik…</div>
       <div id="inbox"><div class="empty">Klik “Cek Pesan” untuk melihat email masuk.</div></div>
+      <details id="inboxRaw" hidden><summary>Lihat respons mentah inbox</summary><pre id="inboxRawBody"></pre></details>
     </div>
 
     <div class="foot">API Key milik Anda sendiri &amp; tersimpan di browser ini saja.<br>API: api.mtc.biz.id</div>
@@ -185,46 +190,51 @@
   const domainSel=$('domain'), customDomainWrap=$('customDomainWrap'), customDomainInput=$('customDomain');
   const qtyInput=$('qty'), orderBtn=$('orderBtn');
   const resultBox=$('result'), resultStatus=$('resultStatus'), ordersBox=$('orders'), rawWrap=$('rawWrap'), resultBody=$('resultBody');
-  const inboxBtn=$('checkInbox'), inboxBox=$('inbox');
+  const inboxBtn=$('checkInbox'), inboxBox=$('inbox'), inboxRaw=$('inboxRaw'), inboxRawBody=$('inboxRawBody');
+  const autoRefresh=$('autoRefresh'), autoNote=$('autoNote');
   const LS='ers_api_key';
 
-  // ---- API Key
   try{ keyInput.value=localStorage.getItem(LS)||''; }catch{}
   keyInput.addEventListener('input',()=>{ try{ localStorage.setItem(LS,keyInput.value.trim()); }catch{} });
   keyInput.addEventListener('change',loadBalance);
   toggleKey.addEventListener('click',()=>{ keyInput.type=keyInput.type==='password'?'text':'password'; });
   const apiKey=()=>keyInput.value.trim();
   const headers=()=>{ const h={'Content-Type':'application/json'}; const k=apiKey(); if(k) h['X-Api-Key']=k; return h; };
+  const esc=(s)=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  // ---- toggle "Lainnya"
   websiteSel.addEventListener('change',()=>{ const c=websiteSel.value==='__custom'; customWrap.style.display=c?'block':'none'; if(c)customInput.focus(); });
   domainSel.addEventListener('change',()=>{ const c=domainSel.value==='__custom'; customDomainWrap.style.display=c?'block':'none'; if(c)customDomainInput.focus(); });
 
-  // ---- quantity
   function clampQty(){ let v=parseInt(qtyInput.value,10); if(isNaN(v)||v<1) v=1; qtyInput.value=v; return v; }
   $('minus').addEventListener('click',()=>{ qtyInput.value=Math.max(1,clampQty()-1); });
   $('plus').addEventListener('click',()=>{ qtyInput.value=clampQty()+1; });
   qtyInput.addEventListener('change',clampQty);
 
-  // ---- saldo
+  // ---- saldo (dukung balance / balance_formatted)
+  function setBalance(d){
+    if(d && d.balance_formatted!=null){ $('balance').innerHTML='Saldo<b>'+esc(d.balance_formatted)+'</b>'; return true; }
+    const b = d && (d.balance ?? d.saldo ?? (d.data&&d.data.balance));
+    if(b!=null){ const n=Number(b); $('balance').innerHTML='Saldo<b>'+(isNaN(n)?esc(b):n.toLocaleString('id-ID'))+'</b>'; return true; }
+    return false;
+  }
   async function loadBalance(){
     if(!apiKey()){ $('balance').innerHTML='Saldo<b>—</b>'; return; }
-    try{
-      const r=await fetch('/api/profile',{headers:headers()}); const d=await r.json();
-      const bal=d.balance ?? d.saldo ?? d.data?.balance;
-      if(bal!=null){ const n=Number(bal); $('balance').innerHTML='Saldo<b>'+(isNaN(n)?String(bal):n.toLocaleString('id-ID'))+'</b>'; }
-      else $('balance').innerHTML='Saldo<b>—</b>';
-    }catch{ $('balance').innerHTML='Saldo<b>—</b>'; }
+    try{ const r=await fetch('/api/profile',{headers:headers()}); const d=await r.json(); if(!setBalance(d)) $('balance').innerHTML='Saldo<b>—</b>'; }
+    catch{ $('balance').innerHTML='Saldo<b>—</b>'; }
   }
   loadBalance();
 
-  // ---- util: cari data di berbagai bentuk respons
+  // ---- cari array data di berbagai bentuk respons
   function extractList(d){
     if(Array.isArray(d)) return d;
-    for(const k of ['data','results','result','emails','orders','list','items','messages','inbox']){
-      if(Array.isArray(d&&d[k])) return d[k];
+    if(d && typeof d==='object'){
+      for(const k of ['ordered','messages','data','results','result','emails','orders','list','items','inbox','pesan']){
+        if(Array.isArray(d[k])) return d[k];
+      }
+      for(const k in d){ if(Array.isArray(d[k]) && d[k].length && typeof d[k][0]==='object') return d[k]; }
+      if(d.data && typeof d.data==='object' && !Array.isArray(d.data)) return extractList(d.data);
+      if(d.email||d.mail||d.address||d.msg_id||d.subject||d.body||d.otp||d.code) return [d];
     }
-    if(d && (d.email||d.mail||d.address||d.msg_id||d.subject||d.body)) return [d];
     return [];
   }
   const pick=(o,keys)=>{ for(const k of keys){ if(o&&o[k]!=null&&o[k]!=='') return o[k]; } return ''; };
@@ -232,17 +242,16 @@
   const pickMsgId=(o)=>pick(o,['msg_id','msgId','message_id','messageId','id','order_id','trx_id']);
   const pickFrom =(m)=>pick(m,['from','sender','email_from','pengirim']);
   const pickSubj =(m)=>pick(m,['subject','title','judul']);
-  const pickBody =(m)=>pick(m,['body','message','text','isi','content','pesan','snippet']);
-  const pickDate =(m)=>pick(m,['date','time','created_at','tanggal','waktu']);
+  const pickBody =(m)=>pick(m,['body','message','text','isi','content','pesan','snippet','full_message','html']);
+  const pickCode =(m)=>pick(m,['otp','code','kode','pin','verification_code']);
+  const pickDate =(m)=>pick(m,['date','time','created_at','tanggal','waktu','received_at']);
 
-  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-  // ---- copy ke clipboard (dengan fallback)
   async function copyText(t){
     try{ await navigator.clipboard.writeText(t); return true; }
     catch{ try{ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select();
       document.execCommand('copy'); ta.remove(); return true; }catch{ return false; } }
   }
+  function flash(btn,text){ const o=btn.textContent; btn.textContent=text; setTimeout(()=>btn.textContent=o,1200); }
 
   // ---- ORDER
   orderBtn.addEventListener('click', async ()=>{
@@ -253,7 +262,7 @@
     if(!domain){ showStatus('err','Domain belum diisi'); return; }
     const qty=clampQty();
 
-    orderBtn.disabled=true; orderBtn.innerHTML='<span class="spinner"></span>Memproses…';
+    orderBtn.disabled=true; orderBtn.innerHTML='<span class="spinner"></span> Memproses…';
     resultBox.hidden=false; ordersBox.innerHTML=''; rawWrap.hidden=true; resultStatus.className='status';
     resultStatus.textContent='Mengirim order…';
 
@@ -261,39 +270,31 @@
       const r=await fetch('/api/order',{method:'POST',headers:headers(),body:JSON.stringify({website,domain,qty})});
       const data=await r.json();
       resultBody.textContent=JSON.stringify(data,null,2); rawWrap.hidden=false;
-      if(r.ok){
-        const list=extractList(data);
-        const rows=list.map(o=>({email:pickEmail(o),msg_id:pickMsgId(o)})).filter(x=>x.email||x.msg_id);
-        if(rows.length){ showStatus('ok','✔ Order berhasil'); renderOrders(rows); }
-        else showStatus('ok','✔ Order berhasil (lihat respons mentah di bawah)');
+      setBalance(data) || loadBalance();
+      if(r.ok && (data.status===undefined || data.status==='success' || data.success_count>0)){
+        const rows=extractList(data).map(o=>({email:pickEmail(o),msg_id:pickMsgId(o)})).filter(x=>x.email||x.msg_id);
+        showStatus('ok','✔ '+(data.message||'Order berhasil'));
+        if(rows.length){ renderOrders(rows); startAuto(180000); }  // auto-cek inbox 3 menit
       }else{
-        showStatus('err','✘ Gagal (HTTP '+r.status+')');
+        showStatus('err','✘ '+(data.message||data.error||('Gagal (HTTP '+r.status+')')));
       }
-      loadBalance();
     }catch(e){ showStatus('err','✘ Error koneksi: '+e.message); }
     finally{ orderBtn.disabled=false; orderBtn.textContent='Order Sekarang'; }
   });
-
   function showStatus(kind,text){ resultBox.hidden=false; resultStatus.className='status '+kind; resultStatus.textContent=text; }
 
-  // ---- render daftar gmail hasil order (Copy + Reaktivasi)
+  // ---- daftar gmail hasil order: email + Copy + Reaktivasi
   function renderOrders(rows){
     ordersBox.innerHTML='';
     rows.forEach(row=>{
       const div=document.createElement('div'); div.className='mailrow';
-      div.innerHTML =
-        '<span class="mail" title="'+esc(row.email)+'">'+esc(row.email||'(email tidak terbaca)')+'</span>'+
-        '<button class="mini copy">Copy</button>'+
-        '<button class="mini react">Reaktivasi</button>';
+      div.innerHTML='<span class="mail" title="'+esc(row.email)+'">'+esc(row.email||'(email tidak terbaca)')+'</span>'+
+        '<button class="mini copy">Copy</button><button class="mini react">Reaktivasi</button>';
       const note=document.createElement('div'); note.className='rnote'; note.hidden=true;
 
       const copyBtn=div.querySelector('.copy');
-      copyBtn.addEventListener('click', async ()=>{
-        const ok=await copyText(row.email||'');
-        const old=copyBtn.textContent; copyBtn.textContent=ok?'Tersalin':'Gagal';
-        setTimeout(()=>copyBtn.textContent=old,1200);
-      });
       if(!row.email) copyBtn.disabled=true;
+      copyBtn.addEventListener('click', async ()=>{ const ok=await copyText(row.email||''); flash(copyBtn, ok?'Tersalin':'Gagal'); });
 
       const reactBtn=div.querySelector('.react');
       if(!row.msg_id){ reactBtn.disabled=true; reactBtn.title='msg_id tidak tersedia'; }
@@ -303,45 +304,70 @@
         try{
           const r=await fetch('/api/reactivate',{method:'POST',headers:headers(),body:JSON.stringify({msg_id:row.msg_id})});
           const d=await r.json();
-          if(r.ok){ note.className='rnote ok'; note.textContent='✔ Reaktivasi terkirim'+(d.message?': '+d.message:''); }
-          else{ note.className='rnote err'; note.textContent='✘ Gagal: '+(d.error||d.message||('HTTP '+r.status)); }
-          loadBalance();
+          if(r.ok && (d.status===undefined||d.status==='success')){ note.className='rnote ok'; note.textContent='✔ '+(d.message||'Reaktivasi terkirim'); }
+          else{ note.className='rnote err'; note.textContent='✘ '+(d.message||d.error||('Gagal HTTP '+r.status)); }
+          setBalance(d)||loadBalance();
         }catch(e){ note.className='rnote err'; note.textContent='✘ Error: '+e.message; }
         finally{ reactBtn.textContent=old; reactBtn.disabled=false; }
       });
-
       ordersBox.appendChild(div); ordersBox.appendChild(note);
     });
   }
 
-  // ---- INBOX
-  inboxBtn.addEventListener('click', async ()=>{
-    if(!apiKey()){ inboxBox.innerHTML='<div class="empty">Masukkan API Key dulu.</div>'; keyInput.focus(); return; }
-    inboxBtn.disabled=true; const old=inboxBtn.textContent; inboxBtn.innerHTML='<span class="spinner"></span>';
+  // ---- INBOX + AUTO REFRESH
+  let inboxTimer=null, inboxStop=null, inboxBusy=false;
+  async function fetchInbox(silent){
+    if(inboxBusy) return;
+    if(!apiKey()){ if(!silent){ inboxBox.innerHTML='<div class="empty">Masukkan API Key dulu.</div>'; keyInput.focus(); } return; }
+    inboxBusy=true; let old;
+    if(!silent){ inboxBtn.disabled=true; old=inboxBtn.textContent; inboxBtn.innerHTML='<span class="spinner"></span>'; }
     try{
-      const r=await fetch('/api/messages',{headers:headers()}); const d=await r.json();
-      if(!r.ok){ inboxBox.innerHTML='<div class="empty">✘ Gagal ('+(d.error||('HTTP '+r.status))+')</div>'; return; }
+      const r=await fetch('/api/messages',{headers:headers()});
+      const txt=await r.text(); let d; try{ d=JSON.parse(txt); }catch{ d={raw:txt}; }
+      inboxRawBody.textContent=(()=>{ try{ return JSON.stringify(d,null,2); }catch{ return txt; } })(); inboxRaw.hidden=false;
+      if(!r.ok){ if(!silent) inboxBox.innerHTML='<div class="empty">✘ Gagal: '+esc(d.error||d.message||('HTTP '+r.status))+'</div>'; return; }
       const list=extractList(d);
-      if(!list.length){ inboxBox.innerHTML='<div class="empty">Belum ada pesan masuk.</div>'; return; }
+      if(!list.length){ if(!silent) inboxBox.innerHTML='<div class="empty">Belum ada pesan masuk.</div>'; return; }
       renderInbox(list);
-    }catch(e){ inboxBox.innerHTML='<div class="empty">✘ Error: '+esc(e.message)+'</div>'; }
-    finally{ inboxBtn.disabled=false; inboxBtn.textContent=old; }
-  });
-
+    }catch(e){ if(!silent) inboxBox.innerHTML='<div class="empty">✘ Error: '+esc(e.message)+'</div>'; }
+    finally{ inboxBusy=false; if(!silent){ inboxBtn.disabled=false; inboxBtn.textContent=old; } }
+  }
   function renderInbox(list){
     inboxBox.innerHTML='';
     list.forEach(m=>{
-      const from=pickFrom(m), subj=pickSubj(m), body=pickBody(m), date=pickDate(m);
+      const from=pickFrom(m), subj=pickSubj(m), date=pickDate(m), to=pickEmail(m);
+      const body=String(pickBody(m)||'');
+      const code=pickCode(m) || ((body.match(/\b\d{4,8}\b/)||[])[0]||'');
       const div=document.createElement('div'); div.className='msg';
-      div.innerHTML =
+      div.innerHTML=
         '<div class="msg-top">'+(subj?'<b>'+esc(subj)+'</b>':'')+(from?'<span>'+esc(from)+'</span>':'')+(date?'<span>· '+esc(date)+'</span>':'')+'</div>'+
-        '<div class="msg-body">'+esc(body||'(isi pesan kosong / tidak terbaca — lihat respons mentah)')+'</div>'+
-        '<button class="mini copy">Copy isi</button>';
-      const btn=div.querySelector('.copy');
-      btn.addEventListener('click', async ()=>{ const ok=await copyText(body||''); const o=btn.textContent; btn.textContent=ok?'Tersalin':'Gagal'; setTimeout(()=>btn.textContent=o,1200); });
+        (to?'<div class="msg-to">→ '+esc(to)+'</div>':'')+
+        '<div class="msg-body">'+esc(body||'(isi pesan kosong — lihat respons mentah inbox)')+'</div>'+
+        '<div class="msg-actions">'+(code?'<button class="mini copy code">Copy kode <span class="code-badge">'+esc(code)+'</span></button>':'')+
+        (body?'<button class="mini copy2">Copy isi</button>':'')+'</div>';
+      const codeBtn=div.querySelector('.code'); if(codeBtn) codeBtn.addEventListener('click', async ()=>{ const ok=await copyText(code); flash(codeBtn, ok?'Tersalin':'Gagal'); });
+      const bodyBtn=div.querySelector('.copy2'); if(bodyBtn) bodyBtn.addEventListener('click', async ()=>{ const ok=await copyText(body); flash(bodyBtn, ok?'Tersalin':'Gagal'); });
       inboxBox.appendChild(div);
     });
   }
+
+  function startAuto(autoStopMs){
+    if(!apiKey()){ keyInput.focus(); return; }
+    if(inboxTimer) clearInterval(inboxTimer);
+    if(inboxStop) clearTimeout(inboxStop);
+    autoRefresh.checked=true; autoNote.hidden=false;
+    fetchInbox(true);
+    inboxTimer=setInterval(()=>fetchInbox(true), 5000);
+    if(autoStopMs>0) inboxStop=setTimeout(stopAuto, autoStopMs);
+  }
+  function stopAuto(){
+    if(inboxTimer){ clearInterval(inboxTimer); inboxTimer=null; }
+    if(inboxStop){ clearTimeout(inboxStop); inboxStop=null; }
+    autoRefresh.checked=false; autoNote.hidden=true;
+  }
+  inboxBtn.addEventListener('click',()=>fetchInbox(false));
+  autoRefresh.addEventListener('change',()=>{ autoRefresh.checked?startAuto(0):stopAuto(); });
+  window.addEventListener('beforeunload',stopAuto);
 </script>
 </body>
 </html>
