@@ -123,6 +123,11 @@ const server = http.createServer(async (req, res) => {
     const id = url.replace('/api/messages', '').replace(/^\//, '');
     return proxy(res, 'GET', '/email_messages' + (id ? '/' + id : ''), null, key);
   }
+  if (req.method === 'POST' && url === '/api/reactivate') {
+    const key = requireKey(req, res); if (!key) return;
+    const b = await readBody(req);
+    return proxy(res, 'POST', '/reactivate_email', { msg_id: b.msg_id }, key);
+  }
   if (req.method === 'GET' && url === '/api/health') {
     return proxy(res, 'GET', '/health', null, null); // tanpa key
   }
