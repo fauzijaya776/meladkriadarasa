@@ -100,8 +100,9 @@
   .msg-mail{font-family:ui-monospace,Menlo,monospace; font-size:13px; color:#dfe6f5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}
   .badge{font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:.3px}
   .badge.success{background:rgba(16,185,129,.16); color:#4ade80}
+  .badge.active,.badge.pending{background:rgba(245,158,11,.16); color:#fbbf24}
   .badge.cancelled,.badge.expired,.badge.failed{background:rgba(244,63,94,.16); color:#fb7185}
-  .badge.pending,.badge.other{background:rgba(148,163,184,.16); color:#cbd5e1}
+  .badge.other{background:rgba(148,163,184,.16); color:#cbd5e1}
   .msg-meta{font-size:11px; color:var(--muted); margin-bottom:7px}
   .msg-body{font-size:13px; color:#dfe6f5; white-space:pre-wrap; word-break:break-word; line-height:1.55;
     background:#0b0f20; border:1px solid var(--line); border-radius:9px; padding:9px 11px}
@@ -331,7 +332,7 @@
           // fokus inbox ke email yang baru diorder + auto-refresh
           orderedSet=new Set(); resolved=new Set(); ordered.forEach(o=>{ if(o.email)orderedSet.add(o.email); if(o.msg_id)orderedSet.add(String(o.msg_id)); });
           onlyWithMsg.checked=false;         // tampilkan juga yang masih menunggu OTP
-          startAuto(180000);
+          startAuto(1200000);                // pantau sampai ~20 menit (jendela order)
         }
       }else{
         showStatus('err','✘ '+(data.message||data.error||('Gagal (HTTP '+r.status+')')));
@@ -402,7 +403,7 @@
     inboxBox.innerHTML='';
     shown.forEach(x=>{
       const email=pickEmail(x), st=String(x.status||'').toLowerCase(), body=String(x.message==null?'':x.message);
-      const badgeCls = ['success','cancelled','expired','failed','pending'].includes(st)?st:'other';
+      const badgeCls = ['success','active','cancelled','expired','failed','pending'].includes(st)?st:'other';
       const link=(body.match(/https?:\/\/\S+/)||[])[0]||'';
       const noUrl=body.replace(/https?:\/\/\S+/g,' ');
       const code=(noUrl.match(/(?:code|kode|otp|pin)[^\d]{0,12}(\d{4,8})/i)||[])[1] || (noUrl.match(/\b\d{4,8}\b/)||[])[0] || '';
@@ -413,7 +414,8 @@
         '<div class="msg-top"><span class="msg-mail">'+esc(email)+'</span>'+(st?'<span class="badge '+badgeCls+'">'+esc(x.status)+'</span>':'')+'</div>'+
         '<div class="msg-meta">'+meta+'</div>'+
         (body ? '<div class="msg-body">'+esc(body)+'</div>'
-              : '<div class="msg-empty">Menunggu email/OTP masuk…</div>')+
+              : '<div class="msg-empty">'+(st==='active'?('Menunggu email masuk…'+(x.expired_at?(' (kadaluarsa '+esc(x.expired_at)+')'):''))
+                  : (['cancelled','expired','failed'].includes(st)?('Tidak ada email masuk (order '+esc(x.status)+').'):'Menunggu email/OTP masuk…'))+'</div>')+
         '<div class="msg-actions"></div>';
       const act=div.querySelector('.msg-actions');
       if(code){ const b=document.createElement('button'); b.className='mini copy'; b.innerHTML='Copy kode '+esc(code);
@@ -443,7 +445,10 @@
         if(item){
           const i=inboxData.findIndex(x=>String(x.msg_id)===String(id));
           if(i>=0) inboxData[i]=item; else inboxData.unshift(item);
-          if(item.message!=null && String(item.message).trim()!==''){ resolved.add(id); gotNew=true; whichEmail=item.email||''; }
+          const st=String(item.status||'').toLowerCase();
+          const hasMsg = item.message!=null && String(item.message).trim()!=='';
+          if(hasMsg){ resolved.add(id); gotNew=true; whichEmail=item.email||''; }
+          else if(['cancelled','expired','failed'].includes(st)){ resolved.add(id); } // selesai tanpa isi
         }
       }catch{}
     }
@@ -455,7 +460,12 @@
       renderInbox();
       if(res.gotNew){ autoNote.style.color='var(--ok)'; autoNote.textContent='✔ Email/OTP masuk untuk '+res.whichEmail; }
       // semua email yang ditunggu sudah dapat isi → hentikan auto
-      if(res.ids.length && res.ids.every(id=>resolved.has(id))){ stopAuto(); autoNote.hidden=false; autoNote.style.color='var(--ok)'; autoNote.textContent='✔ Semua OTP/link sudah masuk.'; }
+      if(res.ids.length && res.ids.every(id=>resolved.has(id))){
+        stopAuto(); autoNote.hidden=false;
+        const anyMsg=inboxData.some(x=> (orderedSet.has(String(x.msg_id))||orderedSet.has(x.email)) && x.message!=null && String(x.message).trim()!=='');
+        if(anyMsg){ autoNote.style.color='var(--ok)'; autoNote.textContent='✔ Email/OTP sudah masuk. (auto-refresh berhenti)'; }
+        else{ autoNote.style.color='var(--warn)'; autoNote.textContent='⚠ Tidak ada email masuk (order dibatalkan/kadaluarsa). Picu OTP di situsnya lalu klik Cek Pesan.'; }
+      }
     } else {
       fetchInbox(true);
     }
