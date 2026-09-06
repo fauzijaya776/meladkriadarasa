@@ -33,6 +33,14 @@
     border:1px solid var(--line); background:#10142a; color:var(--ink); font-size:14px; outline:none; transition:.15s}
   select:focus,input:focus{border-color:var(--accent-2); box-shadow:0 0 0 3px rgba(99,102,241,.25)}
 
+  .gen-row{display:flex; gap:8px; margin-bottom:9px}
+  .gen-row select{flex:1}
+  .gen-out{display:flex; gap:8px}
+  .gen-out input{flex:1; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px}
+  .gen-btn{flex:0 0 auto; min-width:84px; border:1px solid var(--line); background:#10142a; color:#cdd5e6;
+    cursor:pointer; font-size:13px; font-weight:600; border-radius:11px; transition:.15s}
+  .gen-btn:hover{background:#1a2140; color:#fff}
+  .gen-btn.acak{color:#c4b5fd; border-color:rgba(99,102,241,.4)}
   .keyrow{display:flex; gap:8px}
   .keyrow input{flex:1; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px}
   .keyrow button{flex:0 0 auto; width:48px; border:1px solid var(--line); background:#10142a;
@@ -117,6 +125,23 @@
 
     <!-- ====== FORM ORDER ====== -->
     <div class="card">
+      <div class="field">
+        <label for="genCount">🎲 Generator Kata Acak</label>
+        <div class="gen-row">
+          <select id="genCount">
+            <option value="1">1 kata</option>
+            <option value="2">2 kata</option>
+            <option value="3" selected>3 kata</option>
+          </select>
+          <button type="button" class="gen-btn acak" id="genBtn">Acak</button>
+        </div>
+        <div class="gen-out">
+          <input id="genResult" type="text" readonly placeholder="klik Acak…">
+          <button type="button" class="gen-btn" id="genCopy">Copy</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+
       <div class="field">
         <label for="apiKey">🔐 API Key</label>
         <div class="keyrow">
@@ -246,6 +271,18 @@
       document.execCommand('copy'); ta.remove(); return true; }catch{ return false; } }
   }
   function flash(btn,text){ const o=btn.textContent; btn.textContent=text; setTimeout(()=>btn.textContent=o,1200); }
+
+  // ===== GENERATOR KATA ACAK =====
+  const genCount=$('genCount'), genBtn=$('genBtn'), genResult=$('genResult'), genCopy=$('genCopy');
+  const GC='bcdfghjklmnpqrstvwxyz', GV='aeiou';
+  const rf=(s)=>s[Math.floor(Math.random()*s.length)];
+  function randWord(){ const len=8+Math.floor(Math.random()*6); let s='', v=Math.random()<0.5; for(let i=0;i<len;i++){ s+= v?rf(GV):rf(GC); v=!v; } return s; }
+  function randLetter(){ return String.fromCharCode(97+Math.floor(Math.random()*26)); }
+  function genSentence(){ const n=parseInt(genCount.value,10)||1; const w=[]; for(let i=0;i<n;i++) w.push(randWord()); genResult.value=w.join(' ')+' '+randLetter(); }
+  genBtn.addEventListener('click',genSentence);
+  genCount.addEventListener('change',genSentence);
+  genCopy.addEventListener('click', async ()=>{ if(!genResult.value) genSentence(); const ok=await copyText(genResult.value); flash(genCopy, ok?'Tersalin':'Copy'); });
+  genSentence();
 
   // ===== ORDER =====
   orderBtn.addEventListener('click', async ()=>{
