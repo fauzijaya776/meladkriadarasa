@@ -7,7 +7,7 @@
 <style>
   :root{
     --bg:#0f1220; --card:#171b2e; --line:#272c44; --ink:#eef1f8; --muted:#9aa3bd;
-    --accent:#4f46e5; --accent-2:#6366f1; --ok:#10b981; --err:#f43f5e; --radius:16px;
+    --accent:#4f46e5; --accent-2:#6366f1; --ok:#10b981; --err:#f43f5e; --warn:#f59e0b; --radius:16px;
   }
   *{box-sizing:border-box}
   body{
@@ -61,9 +61,10 @@
   .mailrow .mail{flex:1; min-width:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px;
     color:#dfe6f5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .mini{flex:0 0 auto; border:1px solid var(--line); background:#161d31; color:#cdd5e6; cursor:pointer;
-    font-size:12px; font-weight:600; padding:7px 11px; border-radius:9px; transition:.15s}
+    font-size:12px; font-weight:600; padding:7px 11px; border-radius:9px; transition:.15s; text-decoration:none; display:inline-block}
   .mini:hover{background:#1f2942; color:#fff}
   .mini.copy{color:#9fb4ff} .mini.react{color:#7ee0b8; border-color:rgba(16,185,129,.35)}
+  .mini.link{color:#f0c27a; border-color:rgba(245,158,11,.35)}
   .mini:disabled{opacity:.55; cursor:not-allowed}
   .rnote{font-size:11.5px; color:var(--muted); margin:-4px 0 10px 13px}
   .rnote.ok{color:var(--ok)} .rnote.err{color:var(--err)}
@@ -72,24 +73,33 @@
   pre{margin:8px 0 0; white-space:pre-wrap; word-break:break-word; color:#c7cee6; font-size:12px;
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; max-height:240px; overflow:auto}
 
-  .inbox-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px}
+  .inbox-head{display:flex; align-items:center; justify-content:space-between; gap:10px}
   .inbox-head label{margin:0}
   .inbox-actions{display:flex; align-items:center; gap:10px}
+  .inbox-sub{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:10px 0 2px; flex-wrap:wrap}
+  .inbox-info{font-size:11.5px; color:var(--muted)}
   .chk{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); font-weight:600; cursor:pointer; user-select:none}
   .chk input{width:15px; height:15px; accent-color:var(--accent-2); cursor:pointer}
   .btn-sm{border:1px solid var(--line); background:#10142a; color:#cdd5e6; cursor:pointer; font-size:12.5px;
     font-weight:600; padding:8px 14px; border-radius:10px; transition:.15s; min-width:96px}
   .btn-sm:hover{background:#1a2140; color:#fff}
   .btn-sm:disabled{opacity:.6; cursor:not-allowed}
-  .autoNote{font-size:11.5px; color:#7aa2ff; margin:2px 0 8px}
+  .autoNote{font-size:11.5px; color:#7aa2ff; margin:6px 0 2px}
+
   .msg{background:#0e1226; border:1px solid var(--line); border-radius:11px; padding:11px 13px; margin-top:10px}
-  .msg-top{display:flex; flex-wrap:wrap; gap:8px; align-items:baseline; font-size:12px; color:var(--muted); margin-bottom:4px}
-  .msg-top b{color:var(--ink); font-size:13px}
-  .msg-to{font-size:11.5px; color:var(--muted); margin-bottom:6px; font-family:ui-monospace,Menlo,monospace}
-  .msg-body{font-size:13px; color:#dfe6f5; white-space:pre-wrap; word-break:break-word; line-height:1.55}
+  .msg.hl{border-color:var(--accent-2); box-shadow:0 0 0 2px rgba(99,102,241,.2)}
+  .msg-top{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:5px}
+  .msg-mail{font-family:ui-monospace,Menlo,monospace; font-size:13px; color:#dfe6f5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}
+  .badge{font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:.3px}
+  .badge.success{background:rgba(16,185,129,.16); color:#4ade80}
+  .badge.cancelled,.badge.expired,.badge.failed{background:rgba(244,63,94,.16); color:#fb7185}
+  .badge.pending,.badge.other{background:rgba(148,163,184,.16); color:#cbd5e1}
+  .msg-meta{font-size:11px; color:var(--muted); margin-bottom:7px}
+  .msg-body{font-size:13px; color:#dfe6f5; white-space:pre-wrap; word-break:break-word; line-height:1.55;
+    background:#0b0f20; border:1px solid var(--line); border-radius:9px; padding:9px 11px}
+  .msg-empty{font-size:12.5px; color:var(--muted); font-style:italic}
   .msg-actions{display:flex; gap:8px; margin-top:9px; flex-wrap:wrap}
-  .code-badge{font-family:ui-monospace,Menlo,monospace; color:#7ee0b8}
-  .empty{font-size:12.5px; color:var(--muted); text-align:center; padding:10px 0}
+  .empty{font-size:12.5px; color:var(--muted); text-align:center; padding:12px 0}
 
   .foot{text-align:center; margin-top:2px; font-size:11.5px; color:var(--muted); line-height:1.6}
   .spinner{display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.4);
@@ -175,6 +185,10 @@
           <button class="btn-sm" id="checkInbox">Cek Pesan</button>
         </div>
       </div>
+      <div class="inbox-sub">
+        <label class="chk"><input type="checkbox" id="onlyWithMsg" checked> Hanya yang ada isi</label>
+        <span class="inbox-info" id="inboxInfo"></span>
+      </div>
       <div class="autoNote" id="autoNote" hidden>⟳ Auto-refresh aktif — mengecek tiap 5 detik…</div>
       <div id="inbox"><div class="empty">Klik “Cek Pesan” untuk melihat email masuk.</div></div>
       <details id="inboxRaw" hidden><summary>Lihat respons mentah inbox</summary><pre id="inboxRawBody"></pre></details>
@@ -191,8 +205,8 @@
   const qtyInput=$('qty'), orderBtn=$('orderBtn');
   const resultBox=$('result'), resultStatus=$('resultStatus'), ordersBox=$('orders'), rawWrap=$('rawWrap'), resultBody=$('resultBody');
   const inboxBtn=$('checkInbox'), inboxBox=$('inbox'), inboxRaw=$('inboxRaw'), inboxRawBody=$('inboxRawBody');
-  const autoRefresh=$('autoRefresh'), autoNote=$('autoNote');
-  const LS='ers_api_key';
+  const autoRefresh=$('autoRefresh'), autoNote=$('autoNote'), onlyWithMsg=$('onlyWithMsg'), inboxInfo=$('inboxInfo');
+  const LS='ers_api_key', LIMIT=60;
 
   try{ keyInput.value=localStorage.getItem(LS)||''; }catch{}
   keyInput.addEventListener('input',()=>{ try{ localStorage.setItem(LS,keyInput.value.trim()); }catch{} });
@@ -210,7 +224,6 @@
   $('plus').addEventListener('click',()=>{ qtyInput.value=clampQty()+1; });
   qtyInput.addEventListener('change',clampQty);
 
-  // ---- saldo (dukung balance / balance_formatted)
   function setBalance(d){
     if(d && d.balance_formatted!=null){ $('balance').innerHTML='Saldo<b>'+esc(d.balance_formatted)+'</b>'; return true; }
     const b = d && (d.balance ?? d.saldo ?? (d.data&&d.data.balance));
@@ -224,28 +237,9 @@
   }
   loadBalance();
 
-  // ---- cari array data di berbagai bentuk respons
-  function extractList(d){
-    if(Array.isArray(d)) return d;
-    if(d && typeof d==='object'){
-      for(const k of ['ordered','messages','data','results','result','emails','orders','list','items','inbox','pesan']){
-        if(Array.isArray(d[k])) return d[k];
-      }
-      for(const k in d){ if(Array.isArray(d[k]) && d[k].length && typeof d[k][0]==='object') return d[k]; }
-      if(d.data && typeof d.data==='object' && !Array.isArray(d.data)) return extractList(d.data);
-      if(d.email||d.mail||d.address||d.msg_id||d.subject||d.body||d.otp||d.code) return [d];
-    }
-    return [];
-  }
   const pick=(o,keys)=>{ for(const k of keys){ if(o&&o[k]!=null&&o[k]!=='') return o[k]; } return ''; };
   const pickEmail=(o)=>pick(o,['email','mail','address','akun','account','username','user']);
   const pickMsgId=(o)=>pick(o,['msg_id','msgId','message_id','messageId','id','order_id','trx_id']);
-  const pickFrom =(m)=>pick(m,['from','sender','email_from','pengirim']);
-  const pickSubj =(m)=>pick(m,['subject','title','judul']);
-  const pickBody =(m)=>pick(m,['body','message','text','isi','content','pesan','snippet','full_message','html']);
-  const pickCode =(m)=>pick(m,['otp','code','kode','pin','verification_code']);
-  const pickDate =(m)=>pick(m,['date','time','created_at','tanggal','waktu','received_at']);
-
   async function copyText(t){
     try{ await navigator.clipboard.writeText(t); return true; }
     catch{ try{ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select();
@@ -253,7 +247,7 @@
   }
   function flash(btn,text){ const o=btn.textContent; btn.textContent=text; setTimeout(()=>btn.textContent=o,1200); }
 
-  // ---- ORDER
+  // ===== ORDER =====
   orderBtn.addEventListener('click', async ()=>{
     if(!apiKey()){ showStatus('err','API Key belum diisi'); keyInput.focus(); return; }
     const website=websiteSel.value==='__custom'?customInput.value.trim():websiteSel.value;
@@ -272,9 +266,15 @@
       resultBody.textContent=JSON.stringify(data,null,2); rawWrap.hidden=false;
       setBalance(data) || loadBalance();
       if(r.ok && (data.status===undefined || data.status==='success' || data.success_count>0)){
-        const rows=extractList(data).map(o=>({email:pickEmail(o),msg_id:pickMsgId(o)})).filter(x=>x.email||x.msg_id);
+        const ordered=(data.ordered||[]).map(o=>({email:pickEmail(o),msg_id:pickMsgId(o)})).filter(x=>x.email||x.msg_id);
         showStatus('ok','✔ '+(data.message||'Order berhasil'));
-        if(rows.length){ renderOrders(rows); startAuto(180000); }  // auto-cek inbox 3 menit
+        if(ordered.length){
+          renderOrders(ordered);
+          // fokus inbox ke email yang baru diorder + auto-refresh
+          orderedSet=new Set(); resolved=new Set(); ordered.forEach(o=>{ if(o.email)orderedSet.add(o.email); if(o.msg_id)orderedSet.add(String(o.msg_id)); });
+          onlyWithMsg.checked=false;         // tampilkan juga yang masih menunggu OTP
+          startAuto(180000);
+        }
       }else{
         showStatus('err','✘ '+(data.message||data.error||('Gagal (HTTP '+r.status+')')));
       }
@@ -283,7 +283,6 @@
   });
   function showStatus(kind,text){ resultBox.hidden=false; resultStatus.className='status '+kind; resultStatus.textContent=text; }
 
-  // ---- daftar gmail hasil order: email + Copy + Reaktivasi
   function renderOrders(rows){
     ordersBox.innerHTML='';
     rows.forEach(row=>{
@@ -291,13 +290,9 @@
       div.innerHTML='<span class="mail" title="'+esc(row.email)+'">'+esc(row.email||'(email tidak terbaca)')+'</span>'+
         '<button class="mini copy">Copy</button><button class="mini react">Reaktivasi</button>';
       const note=document.createElement('div'); note.className='rnote'; note.hidden=true;
-
-      const copyBtn=div.querySelector('.copy');
-      if(!row.email) copyBtn.disabled=true;
+      const copyBtn=div.querySelector('.copy'); if(!row.email) copyBtn.disabled=true;
       copyBtn.addEventListener('click', async ()=>{ const ok=await copyText(row.email||''); flash(copyBtn, ok?'Tersalin':'Gagal'); });
-
-      const reactBtn=div.querySelector('.react');
-      if(!row.msg_id){ reactBtn.disabled=true; reactBtn.title='msg_id tidak tersedia'; }
+      const reactBtn=div.querySelector('.react'); if(!row.msg_id){ reactBtn.disabled=true; reactBtn.title='msg_id tidak tersedia'; }
       reactBtn.addEventListener('click', async ()=>{
         reactBtn.disabled=true; const old=reactBtn.textContent; reactBtn.textContent='…';
         note.hidden=false; note.className='rnote'; note.textContent='Memproses reaktivasi…';
@@ -314,8 +309,10 @@
     });
   }
 
-  // ---- INBOX + AUTO REFRESH
-  let inboxTimer=null, inboxStop=null, inboxBusy=false;
+  // ===== INBOX =====
+  let inboxData=[], orderedSet=new Set(), resolved=new Set(), inboxTimer=null, inboxStop=null, inboxBusy=false;
+  const AUTO_DEFAULT_TXT='⟳ Auto-refresh aktif — mengecek tiap 5 detik…';
+
   async function fetchInbox(silent){
     if(inboxBusy) return;
     if(!apiKey()){ if(!silent){ inboxBox.innerHTML='<div class="empty">Masukkan API Key dulu.</div>'; keyInput.focus(); } return; }
@@ -326,38 +323,92 @@
       const txt=await r.text(); let d; try{ d=JSON.parse(txt); }catch{ d={raw:txt}; }
       inboxRawBody.textContent=(()=>{ try{ return JSON.stringify(d,null,2); }catch{ return txt; } })(); inboxRaw.hidden=false;
       if(!r.ok){ if(!silent) inboxBox.innerHTML='<div class="empty">✘ Gagal: '+esc(d.error||d.message||('HTTP '+r.status))+'</div>'; return; }
-      const list=extractList(d);
-      if(!list.length){ if(!silent) inboxBox.innerHTML='<div class="empty">Belum ada pesan masuk.</div>'; return; }
-      renderInbox(list);
+      inboxData = Array.isArray(d) ? d : (Array.isArray(d.data)?d.data:(Array.isArray(d.messages)?d.messages:[]));
+      renderInbox();
     }catch(e){ if(!silent) inboxBox.innerHTML='<div class="empty">✘ Error: '+esc(e.message)+'</div>'; }
     finally{ inboxBusy=false; if(!silent){ inboxBtn.disabled=false; inboxBtn.textContent=old; } }
   }
-  function renderInbox(list){
+
+  function renderInbox(){
+    const rows=[...inboxData].sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+    const hasMsg=(x)=> x.message!=null && String(x.message).trim()!=='';
+    const isOrdered=(x)=> orderedSet.has(x.email) || orderedSet.has(String(x.msg_id));
+    const total=rows.length, withCount=rows.filter(hasMsg).length;
+    let shown = rows.filter(x=> isOrdered(x) || (onlyWithMsg.checked ? hasMsg(x) : true));
+    const more = shown.length - LIMIT;
+    shown = shown.slice(0, LIMIT);
+
+    inboxInfo.textContent = total ? (total+' total · '+withCount+' ada isi') : '';
+    if(!shown.length){ inboxBox.innerHTML='<div class="empty">'+(total? (onlyWithMsg.checked?'Belum ada pesan berisi. Hilangkan centang “Hanya yang ada isi” untuk lihat semua.':'Tidak ada data.') :'Belum ada pesan masuk.')+'</div>'; return; }
+
     inboxBox.innerHTML='';
-    list.forEach(m=>{
-      const from=pickFrom(m), subj=pickSubj(m), date=pickDate(m), to=pickEmail(m);
-      const body=String(pickBody(m)||'');
-      const code=pickCode(m) || ((body.match(/\b\d{4,8}\b/)||[])[0]||'');
-      const div=document.createElement('div'); div.className='msg';
+    shown.forEach(x=>{
+      const email=pickEmail(x), st=String(x.status||'').toLowerCase(), body=String(x.message==null?'':x.message);
+      const badgeCls = ['success','cancelled','expired','failed','pending'].includes(st)?st:'other';
+      const link=(body.match(/https?:\/\/\S+/)||[])[0]||'';
+      const noUrl=body.replace(/https?:\/\/\S+/g,' ');
+      const code=(noUrl.match(/(?:code|kode|otp|pin)[^\d]{0,12}(\d{4,8})/i)||[])[1] || (noUrl.match(/\b\d{4,8}\b/)||[])[0] || '';
+      const meta=[x.created_at?('Dibuat: '+esc(x.created_at)):'', x.received_at?('Masuk: '+esc(x.received_at)):'Belum ada email masuk'].filter(Boolean).join(' · ');
+
+      const div=document.createElement('div'); div.className='msg'+(isOrdered(x)?' hl':'');
       div.innerHTML=
-        '<div class="msg-top">'+(subj?'<b>'+esc(subj)+'</b>':'')+(from?'<span>'+esc(from)+'</span>':'')+(date?'<span>· '+esc(date)+'</span>':'')+'</div>'+
-        (to?'<div class="msg-to">→ '+esc(to)+'</div>':'')+
-        '<div class="msg-body">'+esc(body||'(isi pesan kosong — lihat respons mentah inbox)')+'</div>'+
-        '<div class="msg-actions">'+(code?'<button class="mini copy code">Copy kode <span class="code-badge">'+esc(code)+'</span></button>':'')+
-        (body?'<button class="mini copy2">Copy isi</button>':'')+'</div>';
-      const codeBtn=div.querySelector('.code'); if(codeBtn) codeBtn.addEventListener('click', async ()=>{ const ok=await copyText(code); flash(codeBtn, ok?'Tersalin':'Gagal'); });
-      const bodyBtn=div.querySelector('.copy2'); if(bodyBtn) bodyBtn.addEventListener('click', async ()=>{ const ok=await copyText(body); flash(bodyBtn, ok?'Tersalin':'Gagal'); });
+        '<div class="msg-top"><span class="msg-mail">'+esc(email)+'</span>'+(st?'<span class="badge '+badgeCls+'">'+esc(x.status)+'</span>':'')+'</div>'+
+        '<div class="msg-meta">'+meta+'</div>'+
+        (body ? '<div class="msg-body">'+esc(body)+'</div>'
+              : '<div class="msg-empty">Menunggu email/OTP masuk…</div>')+
+        '<div class="msg-actions"></div>';
+      const act=div.querySelector('.msg-actions');
+      if(code){ const b=document.createElement('button'); b.className='mini copy'; b.innerHTML='Copy kode '+esc(code);
+        b.addEventListener('click',async()=>{ const ok=await copyText(code); flash(b,ok?'Tersalin':'Gagal'); }); act.appendChild(b); }
+      if(link){ const a=document.createElement('a'); a.className='mini link'; a.textContent='Buka link'; a.href=link; a.target='_blank'; a.rel='noopener'; act.appendChild(a);
+        const cl=document.createElement('button'); cl.className='mini copy'; cl.textContent='Salin link';
+        cl.addEventListener('click',async()=>{ const ok=await copyText(link); flash(cl,ok?'Tersalin':'Gagal'); }); act.appendChild(cl); }
+      if(body){ const cb=document.createElement('button'); cb.className='mini copy'; cb.textContent='Copy isi';
+        cb.addEventListener('click',async()=>{ const ok=await copyText(body); flash(cb,ok?'Tersalin':'Gagal'); }); act.appendChild(cb); }
+      const eb=document.createElement('button'); eb.className='mini copy'; eb.textContent='Copy email';
+      eb.addEventListener('click',async()=>{ const ok=await copyText(email); flash(eb,ok?'Tersalin':'Gagal'); }); act.appendChild(eb);
       inboxBox.appendChild(div);
     });
+    if(more>0){ const n=document.createElement('div'); n.className='empty'; n.textContent='… +'+more+' lagi (dibatasi '+LIMIT+' terbaru)'; inboxBox.appendChild(n); }
   }
 
+  // pantau khusus email yang sedang ditunggu via endpoint detail /email_messages/<msg_id>
+  async function refreshWatched(){
+    const ids=[...orderedSet].filter(v=>/^\d+$/.test(v));
+    let gotNew=false, whichEmail='';
+    for(const id of ids){
+      if(resolved.has(id)) continue;
+      try{
+        const r=await fetch('/api/messages/'+id,{headers:headers()});
+        const d=await r.json();
+        const item=(d&&d.data&&d.data.msg_id)?d.data:(d&&d.msg_id?d:null);
+        if(item){
+          const i=inboxData.findIndex(x=>String(x.msg_id)===String(id));
+          if(i>=0) inboxData[i]=item; else inboxData.unshift(item);
+          if(item.message!=null && String(item.message).trim()!==''){ resolved.add(id); gotNew=true; whichEmail=item.email||''; }
+        }
+      }catch{}
+    }
+    return {ids, gotNew, whichEmail};
+  }
+  async function pollTick(){
+    if(orderedSet.size){
+      const res=await refreshWatched();
+      renderInbox();
+      if(res.gotNew){ autoNote.style.color='var(--ok)'; autoNote.textContent='✔ Email/OTP masuk untuk '+res.whichEmail; }
+      // semua email yang ditunggu sudah dapat isi → hentikan auto
+      if(res.ids.length && res.ids.every(id=>resolved.has(id))){ stopAuto(); autoNote.hidden=false; autoNote.style.color='var(--ok)'; autoNote.textContent='✔ Semua OTP/link sudah masuk.'; }
+    } else {
+      fetchInbox(true);
+    }
+  }
   function startAuto(autoStopMs){
     if(!apiKey()){ keyInput.focus(); return; }
     if(inboxTimer) clearInterval(inboxTimer);
     if(inboxStop) clearTimeout(inboxStop);
-    autoRefresh.checked=true; autoNote.hidden=false;
-    fetchInbox(true);
-    inboxTimer=setInterval(()=>fetchInbox(true), 5000);
+    autoRefresh.checked=true; autoNote.hidden=false; autoNote.style.color=''; autoNote.textContent=AUTO_DEFAULT_TXT;
+    pollTick();                                        // tampilkan kartu "menunggu" langsung
+    inboxTimer=setInterval(pollTick, 5000);            // lalu pantau tiap 5 detik
     if(autoStopMs>0) inboxStop=setTimeout(stopAuto, autoStopMs);
   }
   function stopAuto(){
@@ -366,6 +417,7 @@
     autoRefresh.checked=false; autoNote.hidden=true;
   }
   inboxBtn.addEventListener('click',()=>fetchInbox(false));
+  onlyWithMsg.addEventListener('change',()=>{ if(inboxData.length) renderInbox(); });
   autoRefresh.addEventListener('change',()=>{ autoRefresh.checked?startAuto(0):stopAuto(); });
   window.addEventListener('beforeunload',stopAuto);
 </script>
