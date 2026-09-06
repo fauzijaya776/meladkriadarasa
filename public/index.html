@@ -154,7 +154,8 @@
       <div class="field">
         <label for="website">Website</label>
         <select id="website">
-          <option value="digitalocean.com" selected>digitalocean.com</option>
+          <option value="cloud.digitalocean.com" selected>cloud.digitalocean.com</option>
+          <option value="digitalocean.com">digitalocean.com</option>
           <option value="instagram.com">instagram.com</option>
           <option value="facebook.com">facebook.com</option>
           <option value="twitter.com">twitter.com</option>
@@ -171,10 +172,12 @@
         <label for="domain">Domain</label>
         <select id="domain">
           <option value="gmail.com" selected>gmail.com</option>
-          <option value="outlook.com">outlook.com</option>
-          <option value="hotmail.com">hotmail.com</option>
-          <option value="yahoo.com">yahoo.com</option>
           <option value="icloud.com">icloud.com</option>
+          <option value="hotmail.com">hotmail.com</option>
+          <option value="outlook.com">outlook.com</option>
+          <option value="yandex.com">yandex.com</option>
+          <option value="ya.ru">ya.ru</option>
+          <option value="rambler.ru">rambler.ru</option>
           <option value="__custom">Lainnya…</option>
         </select>
       </div>
@@ -235,7 +238,7 @@
 
   try{ keyInput.value=localStorage.getItem(LS)||''; }catch{}
   keyInput.addEventListener('input',()=>{ try{ localStorage.setItem(LS,keyInput.value.trim()); }catch{} });
-  keyInput.addEventListener('change',loadBalance);
+  keyInput.addEventListener('change',()=>{ loadBalance(); loadPrice(); });
   toggleKey.addEventListener('click',()=>{ keyInput.type=keyInput.type==='password'?'text':'password'; });
   const apiKey=()=>keyInput.value.trim();
   const headers=()=>{ const h={'Content-Type':'application/json'}; const k=apiKey(); if(k) h['X-Api-Key']=k; return h; };
@@ -244,10 +247,27 @@
   websiteSel.addEventListener('change',()=>{ const c=websiteSel.value==='__custom'; customWrap.style.display=c?'block':'none'; if(c)customInput.focus(); });
   domainSel.addEventListener('change',()=>{ const c=domainSel.value==='__custom'; customDomainWrap.style.display=c?'block':'none'; if(c)customDomainInput.focus(); });
 
-  function clampQty(){ let v=parseInt(qtyInput.value,10); if(isNaN(v)||v<1) v=1; qtyInput.value=v; return v; }
+  let maxQty=3;
+  function clampQty(){ let v=parseInt(qtyInput.value,10); if(isNaN(v)||v<1) v=1; if(v>maxQty) v=maxQty; qtyInput.value=v; return v; }
   $('minus').addEventListener('click',()=>{ qtyInput.value=Math.max(1,clampQty()-1); });
-  $('plus').addEventListener('click',()=>{ qtyInput.value=clampQty()+1; });
+  $('plus').addEventListener('click',()=>{ qtyInput.value=Math.min(maxQty,clampQty()+1); });
   qtyInput.addEventListener('change',clampQty);
+
+  // ---- ambil daftar domain valid + qty maks dari /price
+  async function loadPrice(){
+    if(!apiKey()) return;
+    try{
+      const r=await fetch('/api/price',{headers:headers()}); const d=await r.json();
+      if(Array.isArray(d.domains) && d.domains.length){
+        const cur=domainSel.value;
+        domainSel.innerHTML = d.domains.map(x=>'<option value="'+esc(x.domain)+'">'+esc(x.domain)+(x.price_formatted?(' — '+esc(x.price_formatted)):'')+'</option>').join('')
+          + '<option value="__custom">Lainnya…</option>';
+        if([...domainSel.options].some(o=>o.value===cur)) domainSel.value=cur;
+        else domainSel.value = d.domains.some(x=>x.domain==='gmail.com') ? 'gmail.com' : d.domains[0].domain;
+      }
+      if(d.max_qty){ maxQty=parseInt(d.max_qty,10)||maxQty; qtyInput.max=maxQty; clampQty(); }
+    }catch{}
+  }
 
   function setBalance(d){
     if(d && d.balance_formatted!=null){ $('balance').innerHTML='Saldo<b>'+esc(d.balance_formatted)+'</b>'; return true; }
@@ -261,6 +281,7 @@
     catch{ $('balance').innerHTML='Saldo<b>—</b>'; }
   }
   loadBalance();
+  loadPrice();
 
   const pick=(o,keys)=>{ for(const k of keys){ if(o&&o[k]!=null&&o[k]!=='') return o[k]; } return ''; };
   const pickEmail=(o)=>pick(o,['email','mail','address','akun','account','username','user']);
