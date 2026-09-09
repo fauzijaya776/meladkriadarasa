@@ -34,7 +34,7 @@
   select:focus,input:focus{border-color:var(--accent-2); box-shadow:0 0 0 3px rgba(99,102,241,.25)}
 
   .gen-row{display:flex; gap:8px; margin-bottom:9px}
-  .gen-row select{flex:1}
+  .gen-row select{flex:1; min-width:0}
   .gen-out{display:flex; gap:8px}
   .gen-out input{flex:1; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px}
   .gen-btn{flex:0 0 auto; min-width:84px; border:1px solid var(--line); background:#10142a; color:#cdd5e6;
@@ -76,6 +76,7 @@
   .mini:disabled{opacity:.55; cursor:not-allowed}
   .rnote{font-size:11.5px; color:var(--muted); margin:-4px 0 10px 13px}
   .rnote.ok{color:var(--ok)} .rnote.err{color:var(--err)}
+  .react-meta{font-size:11px; color:var(--muted); margin-left:2px; white-space:nowrap}
 
   details{margin-top:6px} summary{cursor:pointer; color:var(--muted); font-size:12px}
   pre{margin:8px 0 0; white-space:pre-wrap; word-break:break-word; color:#c7cee6; font-size:12px;
@@ -134,6 +135,11 @@
             <option value="2">2 kata</option>
             <option value="3" selected>3 kata</option>
           </select>
+          <select id="genCase" title="Gaya huruf">
+            <option value="lower" selected>huruf kecil</option>
+            <option value="upper">HURUF BESAR</option>
+            <option value="sentence">Depan kalimat</option>
+          </select>
           <button type="button" class="gen-btn acak" id="genBtn">Acak</button>
         </div>
         <div class="gen-out">
@@ -153,38 +159,43 @@
       <div class="divider"></div>
 
       <div class="field">
-        <label for="website">Website</label>
+        <label for="website">Website Tujuan</label>
         <select id="website">
-          <option value="cloud.digitalocean.com" selected>cloud.digitalocean.com</option>
-          <option value="digitalocean.com">digitalocean.com</option>
-          <option value="instagram.com">instagram.com</option>
-          <option value="facebook.com">facebook.com</option>
-          <option value="twitter.com">twitter.com</option>
-          <option value="tiktok.com">tiktok.com</option>
-          <option value="__custom">Lainnya…</option>
+          <option value="instagram.com">Instagram</option>
+          <option value="facebook.com">Facebook</option>
+          <option value="chatgpt.com">ChatGPT AI</option>
+          <option value="claude.ai">Claude AI</option>
+          <option value="paypal.com">PayPal</option>
+          <option value="amazon.com">Amazon</option>
+          <option value="github.com">GitHub</option>
+          <option value="vultr.com">Vultr</option>
+          <option value="oracle.com">Oracle Cloud</option>
+          <option value="upcloud.com">UpCloud</option>
+          <option value="kamatera.com">Kamatera</option>
+          <option value="linode.com">Linode</option>
+          <option value="cloud.digitalocean.com" selected>DigitalOcean</option>
+          <option value="tiktok.com">TikTok</option>
+          <option value="canva.com">Canva</option>
+          <option value="capcut.com">CapCut</option>
+          <option value="__custom">🌐 Isi Custom…</option>
         </select>
       </div>
       <div class="field" id="customWrap" style="display:none">
-        <label for="customWebsite">Website lain</label>
+        <label for="customWebsite">Website custom</label>
         <input id="customWebsite" type="text" placeholder="contoh.com" spellcheck="false">
       </div>
 
       <div class="field">
-        <label for="domain">Domain</label>
+        <label for="domain">Domain Email</label>
         <select id="domain">
-          <option value="gmail.com" selected>gmail.com</option>
-          <option value="icloud.com">icloud.com</option>
-          <option value="hotmail.com">hotmail.com</option>
-          <option value="outlook.com">outlook.com</option>
-          <option value="yandex.com">yandex.com</option>
-          <option value="ya.ru">ya.ru</option>
-          <option value="rambler.ru">rambler.ru</option>
-          <option value="__custom">Lainnya…</option>
+          <option value="gmail.com" selected>gmail.com — Rp 1.000</option>
+          <option value="icloud.com">icloud.com — Rp 1.000</option>
+          <option value="hotmail.com">hotmail.com — Rp 500</option>
+          <option value="outlook.com">outlook.com — Rp 500</option>
+          <option value="yandex.com">yandex.com — Rp 600</option>
+          <option value="ya.ru">ya.ru — Rp 600</option>
+          <option value="rambler.ru">rambler.ru — Rp 600</option>
         </select>
-      </div>
-      <div class="field" id="customDomainWrap" style="display:none">
-        <label for="customDomain">Domain lain</label>
-        <input id="customDomain" type="text" placeholder="contoh.com" spellcheck="false">
       </div>
 
       <div class="field">
@@ -203,6 +214,22 @@
         <div id="orders"></div>
         <details id="rawWrap" hidden><summary>Lihat respons mentah</summary><pre id="resultBody"></pre></details>
       </div>
+    </div>
+
+    <!-- ====== REAKTIVASI EMAIL LAMA ====== -->
+    <div class="card">
+      <div class="inbox-head">
+        <label>♻️ Reaktivasi Email Lama</label>
+        <button class="btn-sm" id="reactSearchBtn">Cari</button>
+      </div>
+      <div class="gen-out" style="margin-top:11px">
+        <input id="reactSearch" type="text" placeholder="Ketik nama email… (mis. john)" spellcheck="false">
+      </div>
+      <div class="inbox-sub">
+        <label class="chk"><input type="checkbox" id="reactReactivatable"> Hanya yang bisa direaktivasi</label>
+        <span class="inbox-info" id="reactInfo"></span>
+      </div>
+      <div id="reactList"><div class="empty">Ketik nama email lalu klik “Cari” untuk menemukan email lama yang bisa direaktivasi.</div></div>
     </div>
 
     <!-- ====== INBOX ====== -->
@@ -230,7 +257,7 @@
   const $ = (id) => document.getElementById(id);
   const keyInput=$('apiKey'), toggleKey=$('toggleKey');
   const websiteSel=$('website'), customWrap=$('customWrap'), customInput=$('customWebsite');
-  const domainSel=$('domain'), customDomainWrap=$('customDomainWrap'), customDomainInput=$('customDomain');
+  const domainSel=$('domain');
   const qtyInput=$('qty'), orderBtn=$('orderBtn');
   const resultBox=$('result'), resultStatus=$('resultStatus'), ordersBox=$('orders'), rawWrap=$('rawWrap'), resultBody=$('resultBody');
   const inboxBtn=$('checkInbox'), inboxBox=$('inbox'), inboxRaw=$('inboxRaw'), inboxRawBody=$('inboxRawBody');
@@ -246,7 +273,6 @@
   const esc=(s)=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
   websiteSel.addEventListener('change',()=>{ const c=websiteSel.value==='__custom'; customWrap.style.display=c?'block':'none'; if(c)customInput.focus(); });
-  domainSel.addEventListener('change',()=>{ const c=domainSel.value==='__custom'; customDomainWrap.style.display=c?'block':'none'; if(c)customDomainInput.focus(); });
 
   let maxQty=3;
   function clampQty(){ let v=parseInt(qtyInput.value,10); if(isNaN(v)||v<1) v=1; if(v>maxQty) v=maxQty; qtyInput.value=v; return v; }
@@ -261,8 +287,7 @@
       const r=await fetch('/api/price',{headers:headers()}); const d=await r.json();
       if(Array.isArray(d.domains) && d.domains.length){
         const cur=domainSel.value;
-        domainSel.innerHTML = d.domains.map(x=>'<option value="'+esc(x.domain)+'">'+esc(x.domain)+(x.price_formatted?(' — '+esc(x.price_formatted)):'')+'</option>').join('')
-          + '<option value="__custom">Lainnya…</option>';
+        domainSel.innerHTML = d.domains.map(x=>'<option value="'+esc(x.domain)+'">'+esc(x.domain)+(x.price_formatted?(' — '+esc(x.price_formatted)):'')+'</option>').join('');
         if([...domainSel.options].some(o=>o.value===cur)) domainSel.value=cur;
         else domainSel.value = d.domains.some(x=>x.domain==='gmail.com') ? 'gmail.com' : d.domains[0].domain;
       }
@@ -294,15 +319,37 @@
   }
   function flash(btn,text){ const o=btn.textContent; btn.textContent=text; setTimeout(()=>btn.textContent=o,1200); }
 
+  // reaktivasi dipakai bersama oleh hasil order & pencarian email lama
+  async function doReactivate(msgId, btn, note){
+    if(!msgId){ note.hidden=false; note.className='rnote err'; note.textContent='✘ msg_id tidak tersedia'; return; }
+    btn.disabled=true; const old=btn.textContent; btn.textContent='…';
+    note.hidden=false; note.className='rnote'; note.textContent='Memproses reaktivasi…';
+    try{
+      const r=await fetch('/api/reactivate',{method:'POST',headers:headers(),body:JSON.stringify({msg_id:msgId})});
+      const d=await r.json();
+      if(r.ok && (d.status===undefined||d.status==='success')){ note.className='rnote ok'; note.textContent='✔ '+(d.message||'Reaktivasi terkirim'); }
+      else{ note.className='rnote err'; note.textContent='✘ '+(d.message||d.error||('Gagal HTTP '+r.status)); }
+      setBalance(d)||loadBalance();
+    }catch(e){ note.className='rnote err'; note.textContent='✘ Error: '+e.message; }
+    finally{ btn.textContent=old; btn.disabled=false; }
+  }
+
   // ===== GENERATOR KATA ACAK =====
-  const genCount=$('genCount'), genBtn=$('genBtn'), genResult=$('genResult'), genCopy=$('genCopy');
+  const genCount=$('genCount'), genCase=$('genCase'), genBtn=$('genBtn'), genResult=$('genResult'), genCopy=$('genCopy');
   const GC='bcdfghjklmnpqrstvwxyz', GV='aeiou';
   const rf=(s)=>s[Math.floor(Math.random()*s.length)];
   function randWord(){ const len=8+Math.floor(Math.random()*6); let s='', v=Math.random()<0.5; for(let i=0;i<len;i++){ s+= v?rf(GV):rf(GC); v=!v; } return s; }
   function randLetter(){ return String.fromCharCode(97+Math.floor(Math.random()*26)); }
-  function genSentence(){ const n=parseInt(genCount.value,10)||1; const w=[]; for(let i=0;i<n;i++) w.push(randWord()); genResult.value=w.join(' ')+' '+randLetter(); }
+  function applyCase(str){
+    const c=genCase.value;
+    if(c==='upper') return str.toUpperCase();
+    if(c==='sentence') return str.charAt(0).toUpperCase()+str.slice(1).toLowerCase();
+    return str.toLowerCase();
+  }
+  function genSentence(){ const n=parseInt(genCount.value,10)||1; const w=[]; for(let i=0;i<n;i++) w.push(randWord()); genResult.value=applyCase(w.join(' ')+' '+randLetter()); }
   genBtn.addEventListener('click',genSentence);
   genCount.addEventListener('change',genSentence);
+  genCase.addEventListener('change',()=>{ if(genResult.value) genResult.value=applyCase(genResult.value); else genSentence(); });
   genCopy.addEventListener('click', async ()=>{ if(!genResult.value) genSentence(); const ok=await copyText(genResult.value); flash(genCopy, ok?'Tersalin':'Copy'); });
   genSentence();
 
@@ -311,7 +358,7 @@
     if(!apiKey()){ showStatus('err','API Key belum diisi'); keyInput.focus(); return; }
     const website=websiteSel.value==='__custom'?customInput.value.trim():websiteSel.value;
     if(!website){ showStatus('err','Website belum diisi'); return; }
-    const domain=domainSel.value==='__custom'?customDomainInput.value.trim():domainSel.value;
+    const domain=domainSel.value;
     if(!domain){ showStatus('err','Domain belum diisi'); return; }
     const qty=clampQty();
 
@@ -352,21 +399,66 @@
       const copyBtn=div.querySelector('.copy'); if(!row.email) copyBtn.disabled=true;
       copyBtn.addEventListener('click', async ()=>{ const ok=await copyText(row.email||''); flash(copyBtn, ok?'Tersalin':'Gagal'); });
       const reactBtn=div.querySelector('.react'); if(!row.msg_id){ reactBtn.disabled=true; reactBtn.title='msg_id tidak tersedia'; }
-      reactBtn.addEventListener('click', async ()=>{
-        reactBtn.disabled=true; const old=reactBtn.textContent; reactBtn.textContent='…';
-        note.hidden=false; note.className='rnote'; note.textContent='Memproses reaktivasi…';
-        try{
-          const r=await fetch('/api/reactivate',{method:'POST',headers:headers(),body:JSON.stringify({msg_id:row.msg_id})});
-          const d=await r.json();
-          if(r.ok && (d.status===undefined||d.status==='success')){ note.className='rnote ok'; note.textContent='✔ '+(d.message||'Reaktivasi terkirim'); }
-          else{ note.className='rnote err'; note.textContent='✘ '+(d.message||d.error||('Gagal HTTP '+r.status)); }
-          setBalance(d)||loadBalance();
-        }catch(e){ note.className='rnote err'; note.textContent='✘ Error: '+e.message; }
-        finally{ reactBtn.textContent=old; reactBtn.disabled=false; }
-      });
+      reactBtn.addEventListener('click', ()=>doReactivate(row.msg_id, reactBtn, note));
       ordersBox.appendChild(div); ordersBox.appendChild(note);
     });
   }
+
+  // ===== REAKTIVASI: cari email lama =====
+  const reactSearch=$('reactSearch'), reactSearchBtn=$('reactSearchBtn'), reactList=$('reactList'),
+        reactInfo=$('reactInfo'), reactReactivatable=$('reactReactivatable');
+  let reactData=[];
+  // status yang biasanya masih bisa direaktivasi (bukan sukses/aktif berjalan)
+  const REACTIVATABLE=['cancelled','expired','failed','done','completed','success'];
+  const canReact=(x)=> !!pickMsgId(x);
+
+  async function loadReact(){
+    if(!apiKey()){ reactList.innerHTML='<div class="empty">Masukkan API Key dulu.</div>'; keyInput.focus(); return; }
+    reactSearchBtn.disabled=true; const old=reactSearchBtn.textContent; reactSearchBtn.innerHTML='<span class="spinner"></span>';
+    try{
+      const r=await fetch('/api/messages',{headers:headers()});
+      const txt=await r.text(); let d; try{ d=JSON.parse(txt); }catch{ d={raw:txt}; }
+      if(!r.ok){ reactList.innerHTML='<div class="empty">✘ Gagal: '+esc(d.error||d.message||('HTTP '+r.status))+'</div>'; return; }
+      reactData = Array.isArray(d) ? d : (Array.isArray(d.data)?d.data:(Array.isArray(d.messages)?d.messages:[]));
+      renderReact();
+    }catch(e){ reactList.innerHTML='<div class="empty">✘ Error: '+esc(e.message)+'</div>'; }
+    finally{ reactSearchBtn.disabled=false; reactSearchBtn.textContent=old; }
+  }
+
+  function renderReact(){
+    const q=reactSearch.value.trim().toLowerCase();
+    let rows=[...reactData].sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+    if(q) rows=rows.filter(x=>String(pickEmail(x)).toLowerCase().includes(q));
+    if(reactReactivatable.checked) rows=rows.filter(canReact);
+    reactInfo.textContent = rows.length ? (rows.length+' email ditemukan') : '';
+    if(!rows.length){
+      reactList.innerHTML='<div class="empty">'+
+        (reactData.length ? (q?('Tidak ada email cocok dengan “'+esc(q)+'”.'):'Tidak ada email.') : 'Belum ada riwayat email. Klik “Cari” untuk memuat.')+
+        '</div>';
+      return;
+    }
+    reactList.innerHTML='';
+    rows.slice(0,LIMIT).forEach(x=>{
+      const email=pickEmail(x), msgId=pickMsgId(x), st=String(x.status||'');
+      const when=x.created_at?String(x.created_at).replace('T',' ').slice(0,16):'';
+      const div=document.createElement('div'); div.className='mailrow';
+      div.innerHTML='<span class="mail" title="'+esc(email)+'">'+esc(email||'(email tidak terbaca)')+'</span>'+
+        (st?'<span class="badge '+(['success','active','cancelled','expired','failed','pending'].includes(st.toLowerCase())?st.toLowerCase():'other')+'">'+esc(st)+'</span>':'')+
+        '<button class="mini copy">Copy</button><button class="mini react">Reaktivasi</button>';
+      const note=document.createElement('div'); note.className='rnote';
+      note.hidden=!when; if(when) note.textContent='Dibuat: '+when;
+      const copyBtn=div.querySelector('.copy'); if(!email) copyBtn.disabled=true;
+      copyBtn.addEventListener('click', async ()=>{ const ok=await copyText(email||''); flash(copyBtn, ok?'Tersalin':'Gagal'); });
+      const reactBtn=div.querySelector('.react'); if(!msgId){ reactBtn.disabled=true; reactBtn.title='msg_id tidak tersedia'; }
+      reactBtn.addEventListener('click', ()=>doReactivate(msgId, reactBtn, note));
+      reactList.appendChild(div); reactList.appendChild(note);
+    });
+    if(rows.length>LIMIT){ const n=document.createElement('div'); n.className='empty'; n.textContent='… +'+(rows.length-LIMIT)+' lagi (dibatasi '+LIMIT+' terbaru)'; reactList.appendChild(n); }
+  }
+  reactSearchBtn.addEventListener('click',loadReact);
+  reactSearch.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); reactData.length?renderReact():loadReact(); } });
+  reactSearch.addEventListener('input',()=>{ if(reactData.length) renderReact(); });
+  reactReactivatable.addEventListener('change',()=>{ if(reactData.length) renderReact(); });
 
   // ===== INBOX =====
   let inboxData=[], orderedSet=new Set(), resolved=new Set(), inboxTimer=null, inboxStop=null, inboxBusy=false;
